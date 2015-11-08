@@ -1,0 +1,403 @@
+<App Background="#CCC" Theme="Basic">
+	<EdgeNavigator ux:Name="EdgeNavigator">
+	<!-- <Panel> -->
+		<JavaScript File="parse-1.5.0.js" ux:Global="Parse" />
+		<!-- <JavaScript File="session-error.js" ux:Global="Session" /> -->
+		<JavaScript File="apikeys.js" ux:Global="ApiKeys" />
+		<JavaScript>
+
+		var Observable = require("FuseJS/Observable");
+		var Parse = require("Parse").Parse;
+		// var Session = require("Session").Session;
+		var ApiKeys = require("ApiKeys");
+
+
+		Parse.initialize(ApiKeys.ParseAppID, ApiKeys.jsKey);
+		// Session.intialize();
+
+		// Parse.User.logOut();
+
+		function handleParseError(err) {
+			switch (err.code) {
+				case Parse.Error.INVALID_SESSION_TOKEN:
+				Parse.User.logOut();
+				// If web browser, render a log in screen
+				// If Express.js, redirect the user to the log in route
+				var user = new Parse.User();
+				user.set("username", 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+		    		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+		    		return v.toString(16);
+					})
+				);
+				user.set("password", 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+		    		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+		    		return v.toString(16);
+					})
+				);
+
+				user.signUp(null, {
+					success: function(user) {
+					// Hooray! Let them use the app now
+					debug_log("Created User: " + Parse.User.username);
+				},
+				error: function(user, error) {
+					// Show the error message somewhere and let the user try again.
+					debug_log("Error: " + error.code + " " + error.message);
+				}
+		    	});
+				break;
+
+    		// Other Parse API errors that you want to explicitly handle
+			}			
+		}
+
+		var currentUser = Parse.User.current();
+		if (currentUser) {
+			  // For each API request, call the global error handler
+			new Parse.Query("User").find().then(function() {
+
+				}, function(err) {
+				handleParseError(err);
+			});
+		} else {
+			    var user = new Parse.User();
+				user.set("username", 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+		    		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+		    		return v.toString(16);
+					})
+				);
+				user.set("password", 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+		    		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+		    		return v.toString(16);
+					})
+				);
+
+				user.signUp(null, {
+					success: function(user) {
+					// Hooray! Let them use the app now
+					debug_log("Created User: " + Parse.User.username);
+				},
+				error: function(user, error) {
+					// Show the error message somewhere and let the user try again.
+					debug_log("Error: " + error.code + " " + error.message);
+				}
+		    	});
+		}
+
+
+		
+
+		var CurrentUser = Parse.User.current();
+
+
+			var PlayedGame = Parse.Object.extend("PlayedGame");
+
+			var games = Observable();
+
+			// function updateGames() {
+			// 	new Parse.query("Game").find().then(function(serverGames) {
+			// 		debug_log("Query succesfull: " + JSON.stringify(serverGames));
+			// 	}, function(error){
+
+			// 			debug_log("Could not update games: " + error);
+
+			// 	});
+			// }
+
+			// updateGames();
+
+			var resetting = Observable(false);
+
+			function Game(title, imageKey, year, played, nonPlayed)
+			{
+				this.title = title;
+				this.imageKey = imageKey;
+				this.year = year;
+				this.played = Observable(played);
+				this.nonPlayed = Observable(nonPlayed);
+				this.degrees = -4 + (8 * Math.random());
+			}
+
+			function reset(x) {
+				resetting.value = true;
+				setTimeout(backToNormal, 300);
+			}
+
+			function backToNormal() {
+				resetting.value = false;
+			}
+
+			module.exports = {
+				games : [
+				new Game("Metroid", "Oslo", "1992", 3127, 3943),
+				new Game("Mario", "Paris", "1981", 10250, 400),
+				new Game("Metal Gear", "SanFrancisco", "2001", 6700, 5421),
+				new Game("Sonic", "Seoul", "1989", 5713, 4702),
+				new Game("Tony Hawk", "Tokyo", "2003", 4512, 657)
+				],
+				played: function(x)
+				{
+					debug_log("User: " + CurrentUser);
+					new PlayedGame().save ({
+
+						title: x.data.title,
+						user: CurrentUser
+
+					}).then(function(game){
+						debug_log("Game " + x.data.title + " saved succesfully");
+					}, function(error){
+
+						debug_log("Could not save game: " + error);
+
+					});
+					debug_log("Played " + x.data.title);
+				},
+				notPlayed: function(x)
+				{
+					debug_log("Not played " + x.data.title);
+				},
+				addPlayed: function(x)
+				{
+					// x.data.played.value = x.data.played.value + 1;
+				},
+				removePlayed: function(x)
+				{
+					x.data.played.value = x.data.played.value - 1;
+				},
+				addNonPlayed: function(x)
+				{
+					// x.data.nonPlayed.value = x.data.nonPlayed.value + 1;
+				},
+				removeNonPlayed: function(x) {
+					x.data.nonPlayed.value = x.data.nonPlayed.value - 1;
+				},
+				reset: reset,
+				resetting: resetting
+			};
+
+			reset();
+			</JavaScript>
+
+			<Sidebar Width="180" ux:Name="menu" EdgeNavigation.Edge="Left">
+				<ActivatingAnimation>
+					<Change mainAppTranslation.X="180" />
+					<!-- Change to cross out -->
+					<Change topMenuTranslation.Y="0" />
+					<Change bottomMenuTranslation.Y="0" />
+					<Change middleRectangle.Opacity="0" Easing="CircularOut" />
+					<Change topMenuRotation.Degrees="45" Easing="ExponentialIn" />
+					<Change bottomMenuRotation.Degrees="-45" Easing="ExponentialIn" />
+					<Change topRectangle.Width="28" />
+					<Change bottomRectangle.Width="28" />
+				</ActivatingAnimation>
+			</Sidebar>
+
+			<DockPanel Background="#fff">
+				<!-- Use this to move the main app area with the side menu -->
+				<Translation ux:Name="mainAppTranslation" />
+
+				<StatusBarBackground Dock="Top" />
+				<BottomFrameBackground Dock="Bottom" />
+
+				<StackPanel Dock="Top">
+
+					<!-- This is the top ledge -->
+					<Grid ColumnData="auto,1*,auto"  Background="White">
+						<Panel Margin="7,5,5,5" Height="32" Width="32" HitTestMode="LocalBounds">
+							<Clicked>
+								<Set EdgeNavigator.Active="menu" />
+							</Clicked>
+							<Rectangle ux:Name="topRectangle" Height="2" Width="26" Fill="#000">
+								<Translation Y="-9" ux:Name="topMenuTranslation" />
+								<Rotation ux:Name="topMenuRotation" />
+							</Rectangle>
+							<Rectangle ux:Name="middleRectangle" Height="2" Width="26" Fill="#000" />
+							<Rectangle ux:Name="bottomRectangle" Height="2" Width="26" Fill="#000">
+								<Translation Y="9" ux:Name="bottomMenuTranslation" />
+								<Rotation ux:Name="bottomMenuRotation" />
+							</Rectangle>
+						</Panel>
+
+						<Text FontSize="22" Alignment="VerticalCenter" TextAlignment="Center"
+							Value="Game Stack" Padding="2">
+							<!-- <Font File="assets/fonts/AlegreyaSans-Bold.otf" /> -->
+						</Text>
+
+						<Panel Margin="5,5,7,5" Height="32" Width="32" HitTestMode="LocalBounds">
+							<Clicked>
+								<DebugAction Message="Search clicked" />
+							</Clicked>
+							<Circle Height="20" Width="20">
+								<Stroke Width="2" Brush="#000" />
+							</Circle>
+							<Rectangle Width="7" Height="3" Fill="#000">
+								<Translation X="8" Y="8" />
+								<Rotation Degrees="45" />
+							</Rectangle>
+						</Panel>
+					</Grid>
+					<Rectangle Height="1" Margin="0,5,0,0" Fill="#333c48" />
+				</StackPanel>
+
+
+				<Panel>
+					<iOS.StatusBarConfig Style="Dark" />
+					<Font File="Assets/Fonts/Roboto-Regular.ttf" ux:Global="RobotoRegular" />
+					<Font File="Assets/Fonts/Roboto-Medium.ttf" ux:Global="RobotoMedium" />
+					<FileImageSource File="Assets/Cities/Paris.jpg" ux:Key="Paris" />
+					<FileImageSource File="Assets/Cities/Oslo.jpg" ux:Key="Oslo" />
+					<FileImageSource File="Assets/Cities/San Francisco.jpg" ux:Key="SanFrancisco" />
+					<FileImageSource File="Assets/Cities/Seoul.jpg" ux:Key="Seoul" />
+					<FileImageSource File="Assets/Cities/Tokyo.jpg" ux:Key="Tokyo" />
+
+					<Each Items="{games}">
+						<Panel Margin="0" Height="400" Width="293">
+							<Rotation Degrees="{degrees}" />
+
+							<DockPanel Margin="0" Height="100%" Width="100%">
+
+								<Grid ColumnData="auto,1*,auto"  Margin="0,14,0,5" Dock="Top">
+									<Image ux:Name="played" File="Assets/Emblems/visited.png" Margin="10,0,10,0" Opacity="0" Height="40" Alignment="VerticalCenter" />
+									<StackPanel Alignment="VerticalCenter">
+										<Text Value="{title}" FontSize="18" Alignment="Center" Font="RobotoRegular" TextColor="#434343" />
+										<Text Value="{year}" FontSize="12" Alignment="Center" Font="RobotoMedium" TextColor="#c4c4c4" Margin="0,-3,0,10" />
+									</StackPanel>
+									<Image ux:Name="notPlayed" File="Assets/Emblems/notvisited.png" Margin="10,0,10,0" Opacity="0"  Height="40" Alignment="VerticalCenter" />
+								</Grid>
+
+								<Image ux:Name="playedOverlay" StretchMode="UniformToFill" File="Assets/Emblems/VisitedOverlay.png" Opacity="0" Dock="Fill" />
+								<Image ux:Name="notPlayedOverlay" StretchMode="UniformToFill" File="Assets/Emblems/NotVisitedOverlay.png" Opacity="0" Dock="Fill" />
+								<Image Source="{DataToResource imageKey}" Margin="0" StretchMode="UniformToFill" Dock="Fill" />
+
+								<Grid ColumnCount="2" Margin="0,0,0,0"  Background="#e5e5e5" Dock="Bottom">
+									<StackPanel Padding="0,5,1,5" Background="#fff" Margin="0,0,1,0">
+										<Text FontSize="22" Alignment="Center" Font="RobotoMedium" Value="{played}" />
+										<Text FontSize="12" Alignment="Center" Font="RobotoRegular" TextColor="#c4c4c4">Played</Text>
+									</StackPanel>
+
+									<StackPanel Padding="0,5,0,5" Background="#fff">
+										<Text FontSize="22" Alignment="Center" Font="RobotoMedium" Value="{nonPlayed}" />
+										<Text FontSize="12" Alignment="Center" Font="RobotoRegular" TextColor="#c4c4c4">HAVEN'T Played</Text>
+									</StackPanel>
+								</Grid>
+							</DockPanel>
+							<Panel Background="White" Margin="0" Height="100%" Width="100%">
+								<DropShadow Distance="0" Size="2" ux:Name="shadow" />
+							</Panel>
+
+							<InForceFieldAnimation ForceField="playedAttractor" From="0.1" To="0.3">
+								<Change played.Opacity="1" Duration="1" />
+								<Change playedOverlay.Opacity="1" Duration="1" />
+							</InForceFieldAnimation>
+
+							<InForceFieldAnimation ForceField="playedAttractor">
+								<Rotate Degrees="-8" />
+							</InForceFieldAnimation>
+
+							<InForceFieldAnimation ForceField="notPlayedAttractor" From="0.1" To="0.3">
+								<Change notPlayed.Opacity="1" Duration="1" />
+								<Change notPlayedOverlay.Opacity="1" Duration="1" />
+							</InForceFieldAnimation>
+
+							<InForceFieldAnimation ForceField="notPlayedAttractor">
+								<Rotate Degrees="8" />
+							</InForceFieldAnimation>
+
+							<EnteredForceField ForceField="playedAttractor" Threshold="0.9" Handler="{played}" />
+							<EnteredForceField ForceField="notPlayedAttractor" Threshold="0.9" Handler="{notPlayed}" />
+
+							<EnteredForceField ForceField="playedAttractor" Threshold="0.05" Handler="{addPlayed}" />
+							<ExitedForceField ForceField="playedAttractor" Threshold="0.05" Handler="{removePlayed}" />
+							<EnteredForceField ForceField="notPlayedAttractor" Threshold="0.05" Handler="{addNonPlayed}" />
+							<ExitedForceField ForceField="notPlayedAttractor" Threshold="0.05" Handler="{removeNonPlayed}" />
+
+							<Draggable />
+
+							<WhileDragging>
+								<BringToFront />
+								<Scale Factor="1.1" Duration="0.5" Easing="BackOut" />
+								<Change shadow.Distance="20" Duration="0.5" Easing="BackOut" />
+								<Change shadow.Size="20" Duration="0.5" Easing="BackOut" />
+							</WhileDragging>
+
+						</Panel>
+					</Each>
+
+					<PointAttractor ux:Name="centerAttractor" Radius="800" Strength="250" />
+					<PointAttractor ux:Name="notPlayedAttractor" Offset="-400,0,0" Radius="380" Strength="600" />
+					<PointAttractor ux:Name="playedAttractor" Offset="400,0,0" Radius="380" Strength="600" />
+
+					<WhileTrue Value="{resetting}">
+						<Change centerAttractor.Radius="8000" />
+						<Change centerAttractor.Strength="10000" />
+					</WhileTrue>
+
+				</Panel>
+
+				<Panel>
+					<Image Clicked="{reset}" Height="64" Width="64" File="Assets/Icons/Refresh.png" />
+				</Panel>
+
+				<PageControl ux:Name="pages">
+			      <Page ux:Name="page1" Background="#34495e">
+			        <!-- <Image File="Assets/fuse-logo.png" StretchDirection="DownOnly" /> -->
+			        <ActivatingAnimation>
+			          <Scale Target="tabBarImage1" Factor="1.3" />
+			        </ActivatingAnimation>
+			      </Page>
+			      <Page ux:Name="page2" Background="#3498db">
+			        <!-- <Image File="Assets/fuse-logo.png" StretchDirection="DownOnly" /> -->
+			        <ActivatingAnimation>
+			          <Scale Target="tabBarImage2" Factor="1.3" />
+			        </ActivatingAnimation>
+			      </Page>
+			      <Page ux:Name="page3" Background="#aa3377">
+			        <!-- <Image File="Assets/fuse-logo.png" StretchDirection="DownOnly" /> -->
+			        <ActivatingAnimation>
+			          <Scale Target="tabBarImage3" Factor="1.3" />
+			        </ActivatingAnimation>
+			      </Page>
+			      <Page ux:Name="page4" Background="#88cc22">
+			        <!-- <Image File="Assets/fuse-logo.png" StretchDirection="DownOnly" /> -->
+			        <ActivatingAnimation>
+			          <Scale Target="tabBarImage4" Factor="1.3" />
+			        </ActivatingAnimation>
+			      </Page>
+			    </PageControl>
+
+			    <Grid ColumnData="1*,1*,1*,1*" Height="45" Dock="Bottom">
+			      <Style>
+			        <Image Padding="7" />
+			      </Style>
+			      <Panel Background="#34495e">
+			        <Image ux:Name="tabBarImage1" File="Assets/Icons/Chat.png" />
+			        <Clicked>
+			          <Set pages.Active="page1" />
+			        </Clicked>
+			      </Panel>
+			      <Panel Background="#3498db">
+			        <Image ux:Name="tabBarImage2" File="Assets/Icons/Like.png" />
+			        <Clicked>
+			          <Set pages.Active="page2" />
+			        </Clicked>
+			      </Panel>
+			      <Panel Background="#aa3377">
+			        <Image ux:Name="tabBarImage3" File="Assets/Icons/Share.png" />
+			        <Clicked>
+			          <Set pages.Active="page3" />
+			        </Clicked>
+			      </Panel>
+			      <Panel Background="#88cc22">
+			        <Image ux:Name="tabBarImage4" File="Assets/Icons/Feed.png" />
+			        <Clicked>
+			          <Set pages.Active="page4" />
+			        </Clicked>
+			      </Panel>
+			    </Grid>
+
+			<!-- </Panel> -->
+		</DockPanel>
+	</EdgeNavigator>
+</App>
+
+
