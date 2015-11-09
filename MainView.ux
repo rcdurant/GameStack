@@ -8,21 +8,15 @@
 
 			var Observable = require("FuseJS/Observable");
 			var Parse = require("Parse").Parse;
-			// var Session = require("Session").Session;
 			var ApiKeys = require("ApiKeys");
 
 
 			Parse.initialize(ApiKeys.ParseAppID, ApiKeys.jsKey);
-			// Session.intialize();
-
-			// Parse.User.logOut();
 
 			function handleParseError(err) {
 				switch (err.code) {
 					case Parse.Error.INVALID_SESSION_TOKEN:
 					Parse.User.logOut();
-					// If web browser, render a log in screen
-					// If Express.js, redirect the user to the log in route
 					var user = new Parse.User();
 					user.set("username", 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
 			    		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
@@ -91,6 +85,7 @@
 
 
 			var PlayedGame = Parse.Object.extend("PlayedGame");
+			var NotPlayedGame = Parse.Object.extend("NotPlayedGame");
 
 			var games = Observable();
 
@@ -101,6 +96,12 @@
             .then(function(responseObject) { 
             	
             	game.value = responseObject;
+            	// var length = game.value.results.length;
+            	// for (var i = length - 1; i >= 0; i--) {
+
+
+
+            	// };
             	debug_log("Fetched: " + game.value.results[0].name);
 
             	 });
@@ -140,16 +141,16 @@
 
 			module.exports = {
 				game: game,
-				games : [
-				new Game("Metroid", "Oslo", "1992", 3127, 3943),
-				new Game("Mario", "Paris", "1981", 10250, 400),
-				new Game("Metal Gear", "SanFrancisco", "2001", 6700, 5421),
-				new Game("Sonic", "Seoul", "1989", 5713, 4702),
-				new Game("Tony Hawk", "Tokyo", "2003", 4512, 657)
-				],
+				// games : [
+				// new Game("Metroid", "Oslo", "1992", 3127, 3943),
+				// new Game("Mario", "Paris", "1981", 10250, 400),
+				// new Game("Metal Gear", "SanFrancisco", "2001", 6700, 5421),
+				// new Game("Sonic", "Seoul", "1989", 5713, 4702),
+				// new Game("Tony Hawk", "Tokyo", "2003", 4512, 657)
+				// ],
 				played: function(x)
 				{
-					debug_log("User: " + CurrentUser);
+					// debug_log("User: " + CurrentUser);
 					new PlayedGame().save ({
 
 						title: x.data.name,
@@ -166,7 +167,19 @@
 				},
 				notPlayed: function(x)
 				{
-					debug_log("Not played " + x.data.name);
+					new NotPlayedGame().save ({
+
+						title: x.data.name,
+						user: CurrentUser
+
+					}).then(function(game){
+						debug_log("Game " + x.data.name + " saved succesfully");
+					}, function(error){
+
+						debug_log("Could not save game: " + error);
+
+					});
+					debug_log("Not Played " + x.data.name);
 				},
 				addPlayed: function(x)
 				{
