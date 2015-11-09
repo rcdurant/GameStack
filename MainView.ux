@@ -6,93 +6,104 @@
 		<JavaScript File="apikeys.js" ux:Global="ApiKeys" />
 		<JavaScript>
 
-		var Observable = require("FuseJS/Observable");
-		var Parse = require("Parse").Parse;
-		// var Session = require("Session").Session;
-		var ApiKeys = require("ApiKeys");
+			var Observable = require("FuseJS/Observable");
+			var Parse = require("Parse").Parse;
+			// var Session = require("Session").Session;
+			var ApiKeys = require("ApiKeys");
 
 
-		Parse.initialize(ApiKeys.ParseAppID, ApiKeys.jsKey);
-		// Session.intialize();
+			Parse.initialize(ApiKeys.ParseAppID, ApiKeys.jsKey);
+			// Session.intialize();
 
-		// Parse.User.logOut();
+			// Parse.User.logOut();
 
-		function handleParseError(err) {
-			switch (err.code) {
-				case Parse.Error.INVALID_SESSION_TOKEN:
-				Parse.User.logOut();
-				// If web browser, render a log in screen
-				// If Express.js, redirect the user to the log in route
-				var user = new Parse.User();
-				user.set("username", 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-		    		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-		    		return v.toString(16);
-					})
-				);
-				user.set("password", 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-		    		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-		    		return v.toString(16);
-					})
-				);
+			function handleParseError(err) {
+				switch (err.code) {
+					case Parse.Error.INVALID_SESSION_TOKEN:
+					Parse.User.logOut();
+					// If web browser, render a log in screen
+					// If Express.js, redirect the user to the log in route
+					var user = new Parse.User();
+					user.set("username", 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+			    		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+			    		return v.toString(16);
+						})
+					);
+					user.set("password", 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+			    		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+			    		return v.toString(16);
+						})
+					);
 
-				user.signUp(null, {
-					success: function(user) {
-					// Hooray! Let them use the app now
-					debug_log("Created User: " + Parse.User.username);
-				},
-				error: function(user, error) {
-					// Show the error message somewhere and let the user try again.
-					debug_log("Error: " + error.code + " " + error.message);
-				}
-		    	});
-				break;
+					user.signUp(null, {
+						success: function(user) {
+						// Hooray! Let them use the app now
+						debug_log("Created User: " + Parse.User.username);
+					},
+					error: function(user, error) {
+						// Show the error message somewhere and let the user try again.
+						debug_log("Error: " + error.code + " " + error.message);
+					}
+			    	});
+					break;
 
-    		// Other Parse API errors that you want to explicitly handle
-			}			
-		}
+	    		// Other Parse API errors that you want to explicitly handle
+				}			
+			}
 
-		var currentUser = Parse.User.current();
-		if (currentUser) {
-			  // For each API request, call the global error handler
-			new Parse.Query("User").find().then(function() {
+			var currentUser = Parse.User.current();
+			if (currentUser) {
+				  // For each API request, call the global error handler
+				new Parse.Query("User").find().then(function() {
 
-				}, function(err) {
-				handleParseError(err);
-			});
-		} else {
-			    var user = new Parse.User();
-				user.set("username", 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-		    		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-		    		return v.toString(16);
-					})
-				);
-				user.set("password", 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-		    		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-		    		return v.toString(16);
-					})
-				);
+					}, function(err) {
+					handleParseError(err);
+				});
+			} else {
+				    var user = new Parse.User();
+					user.set("username", 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+			    		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+			    		return v.toString(16);
+						})
+					);
+					user.set("password", 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+			    		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+			    		return v.toString(16);
+						})
+					);
 
-				user.signUp(null, {
-					success: function(user) {
-					// Hooray! Let them use the app now
-					debug_log("Created User: " + Parse.User.username);
-				},
-				error: function(user, error) {
-					// Show the error message somewhere and let the user try again.
-					debug_log("Error: " + error.code + " " + error.message);
-				}
-		    	});
-		}
+					user.signUp(null, {
+						success: function(user) {
+						// Hooray! Let them use the app now
+						debug_log("Created User: " + Parse.User.username);
+					},
+					error: function(user, error) {
+						// Show the error message somewhere and let the user try again.
+						debug_log("Error: " + error.code + " " + error.message);
+					}
+			    	});
+			}
 
 
-		
+			
 
-		var CurrentUser = Parse.User.current();
+			var CurrentUser = Parse.User.current();
 
 
 			var PlayedGame = Parse.Object.extend("PlayedGame");
 
 			var games = Observable();
+
+			var game = Observable();
+
+          	fetch('http://giantbomb.com/api/releases/?api_key=' + ApiKeys.GBKey + '&format=json&filter=region:1,release_date:2015-8-6|2018-1-1,platform:20&sort=release_date:asc')
+            .then(function(response) { return response.json(); })
+            .then(function(responseObject) { 
+            	
+            	game.value = responseObject;
+            	debug_log("Fetched: " + game.value.results[0].name);
+
+            	 });
 
 			// function updateGames() {
 			// 	new Parse.query("Game").find().then(function(serverGames) {
@@ -128,6 +139,7 @@
 			}
 
 			module.exports = {
+				game: game,
 				games : [
 				new Game("Metroid", "Oslo", "1992", 3127, 3943),
 				new Game("Mario", "Paris", "1981", 10250, 400),
@@ -140,21 +152,21 @@
 					debug_log("User: " + CurrentUser);
 					new PlayedGame().save ({
 
-						title: x.data.title,
+						title: x.data.name,
 						user: CurrentUser
 
 					}).then(function(game){
-						debug_log("Game " + x.data.title + " saved succesfully");
+						debug_log("Game " + x.data.name + " saved succesfully");
 					}, function(error){
 
 						debug_log("Could not save game: " + error);
 
 					});
-					debug_log("Played " + x.data.title);
+					debug_log("Played " + x.data.name);
 				},
 				notPlayed: function(x)
 				{
-					debug_log("Not played " + x.data.title);
+					debug_log("Not played " + x.data.name);
 				},
 				addPlayed: function(x)
 				{
@@ -162,14 +174,14 @@
 				},
 				removePlayed: function(x)
 				{
-					x.data.played.value = x.data.played.value - 1;
+					// x.data.played.value = x.data.played.value - 1;
 				},
 				addNonPlayed: function(x)
 				{
 					// x.data.nonPlayed.value = x.data.nonPlayed.value + 1;
 				},
 				removeNonPlayed: function(x) {
-					x.data.nonPlayed.value = x.data.nonPlayed.value - 1;
+					// x.data.nonPlayed.value = x.data.nonPlayed.value - 1;
 				},
 				reset: reset,
 				resetting: resetting
@@ -193,6 +205,7 @@
 			</Sidebar>
 
 			<DockPanel Background="#fff">
+<!-- Begin SideBar -->
 				<!-- Use this to move the main app area with the side menu -->
 				<Translation ux:Name="mainAppTranslation" />
 
@@ -238,19 +251,15 @@
 					</Grid>
 					<Rectangle Height="1" Margin="0,5,0,0" Fill="#333c48" />
 				</StackPanel>
+<!-- End SideBar -->
 
-
+<!-- Begin Stack -->
 				<Panel>
 					<iOS.StatusBarConfig Style="Dark" />
 					<Font File="Assets/Fonts/Roboto-Regular.ttf" ux:Global="RobotoRegular" />
 					<Font File="Assets/Fonts/Roboto-Medium.ttf" ux:Global="RobotoMedium" />
-					<FileImageSource File="Assets/Cities/Paris.jpg" ux:Key="Paris" />
-					<FileImageSource File="Assets/Cities/Oslo.jpg" ux:Key="Oslo" />
-					<FileImageSource File="Assets/Cities/San Francisco.jpg" ux:Key="SanFrancisco" />
-					<FileImageSource File="Assets/Cities/Seoul.jpg" ux:Key="Seoul" />
-					<FileImageSource File="Assets/Cities/Tokyo.jpg" ux:Key="Tokyo" />
 
-					<Each Items="{games}">
+					<Each Items="{game.results}">
 						<Panel Margin="0" Height="400" Width="293">
 							<Rotation Degrees="{degrees}" />
 
@@ -259,17 +268,17 @@
 								<Grid ColumnData="auto,1*,auto"  Margin="0,14,0,5" Dock="Top">
 									<Image ux:Name="played" File="Assets/Emblems/visited.png" Margin="10,0,10,0" Opacity="0" Height="40" Alignment="VerticalCenter" />
 									<StackPanel Alignment="VerticalCenter">
-										<Text Value="{title}" FontSize="18" Alignment="Center" Font="RobotoRegular" TextColor="#434343" />
-										<Text Value="{year}" FontSize="12" Alignment="Center" Font="RobotoMedium" TextColor="#c4c4c4" Margin="0,-3,0,10" />
+										<Text Value="{name}" FontSize="18" Alignment="Center" Font="RobotoRegular" TextWrapping="Wrap" TextColor="#434343" />
+										<Text Value="{release_date}" FontSize="12" Alignment="Center" Font="RobotoMedium" TextColor="#c4c4c4" Margin="0,-3,0,10" />
 									</StackPanel>
 									<Image ux:Name="notPlayed" File="Assets/Emblems/notvisited.png" Margin="10,0,10,0" Opacity="0"  Height="40" Alignment="VerticalCenter" />
 								</Grid>
 
 								<Image ux:Name="playedOverlay" StretchMode="UniformToFill" File="Assets/Emblems/VisitedOverlay.png" Opacity="0" Dock="Fill" />
 								<Image ux:Name="notPlayedOverlay" StretchMode="UniformToFill" File="Assets/Emblems/NotVisitedOverlay.png" Opacity="0" Dock="Fill" />
-								<Image Source="{DataToResource imageKey}" Margin="0" StretchMode="UniformToFill" Dock="Fill" />
+								<Image Url="{image.medium_url}" Margin="0" StretchMode="UniformToFill" Dock="Fill" />
 
-								<Grid ColumnCount="2" Margin="0,0,0,0"  Background="#e5e5e5" Dock="Bottom">
+								<!-- <Grid ColumnCount="2" Margin="0,0,0,0"  Background="#e5e5e5" Dock="Bottom">
 									<StackPanel Padding="0,5,1,5" Background="#fff" Margin="0,0,1,0">
 										<Text FontSize="22" Alignment="Center" Font="RobotoMedium" Value="{played}" />
 										<Text FontSize="12" Alignment="Center" Font="RobotoRegular" TextColor="#c4c4c4">Played</Text>
@@ -279,7 +288,7 @@
 										<Text FontSize="22" Alignment="Center" Font="RobotoMedium" Value="{nonPlayed}" />
 										<Text FontSize="12" Alignment="Center" Font="RobotoRegular" TextColor="#c4c4c4">HAVEN'T Played</Text>
 									</StackPanel>
-								</Grid>
+								</Grid> -->
 							</DockPanel>
 							<Panel Background="White" Margin="0" Height="100%" Width="100%">
 								<DropShadow Distance="0" Size="2" ux:Name="shadow" />
@@ -337,6 +346,9 @@
 				<Panel>
 					<Image Clicked="{reset}" Height="64" Width="64" File="Assets/Icons/Refresh.png" />
 				</Panel>
+<!-- End Stack -->
+
+<!-- Begin Bottom Tab Bar -->
 
 				<PageControl ux:Name="pages">
 			      <Page ux:Name="page1" Background="#34495e">
@@ -394,8 +406,8 @@
 			        </Clicked>
 			      </Panel>
 			    </Grid>
+<!-- End Bottom Tab Bar -->
 
-			<!-- </Panel> -->
 		</DockPanel>
 	</EdgeNavigator>
 </App>
